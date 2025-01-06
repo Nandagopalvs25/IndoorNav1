@@ -101,27 +101,32 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Permission", "BLUETOOTH_CONNECT permission not granted");
                     return;
                 }
-
                 String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
-                if ("INS".equals(deviceName)) {
-                    rssiList.add(rssi);
-                    if (rssiList.size() >= 10) {
-                        try {
-
-                            JSONArray rssiJsonArray = new JSONArray(rssiList);
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("rssi", rssiJsonArray);
-                            String logMessage = jsonObject.toString();
-                            Log.d("BLE Scan", logMessage);
-                            updateTextView(logMessage);
-                            webSocketManager.sendMessage(logMessage);
-                            rssiList.clear();
-                        } catch (Exception e) {
-                            Log.e("BLE Scan", "Error creating JSON", e);
+                        if(rssiList.size()<10){
+                            if("INS1".equals(deviceName)) {
+                                rssiList.add(rssi);
+                            }
+                        } else if (rssiList.size()<20) {
+                            if("INS2".equals(deviceName)) {
+                                rssiList.add(rssi);
+                            }
                         }
-                    }
-                }
+                     if(rssiList.size()==20){
+                         try {
+                             JSONArray rssiJsonArray = new JSONArray(rssiList);
+                             JSONObject jsonObject = new JSONObject();
+                             jsonObject.put("rssi", rssiJsonArray);
+                             String logMessage = jsonObject.toString();
+                             Log.d("BLE Scan", logMessage);
+                             updateTextView(logMessage);
+                             webSocketManager.sendMessage(logMessage);
+                             rssiList.clear();
+                         }
+                         catch (Exception e){
+                             Log.e("BLE Scan", "Error creating JSON", e);
+                         }
+                     }
             }
             @Override
             public void onScanFailed(int errorCode) {
@@ -140,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("BLE Scan", "Scan started");
             new Handler().postDelayed(() -> {
                 bluetoothLeScanner.stopScan(scanCallback);
-                Log.d("BLE Scan", "Scan stopped after 5 seconds");
-            }, 5000);
+                Log.d("BLE Scan", "Scan stopped after 10 seconds");
+            }, 10000);
         } else {
             Log.e("BLE Scan", "BluetoothLeScanner is null");
         }
